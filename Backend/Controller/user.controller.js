@@ -4,9 +4,9 @@ import bcrypt from "bcryptjs";
 import { google } from "googleapis";
 import jwt from "jsonwebtoken";
 import { oauth2Client } from "../Utils/googleConfig.js";
+import nodemailer from "nodemailer";
 
-
-const signUp = async (req, res) => {
+export const signUp = async (req, res) => {
   const { name, email, password } = req.body;
   try {
     const user = await User.findOne({ email });
@@ -31,7 +31,6 @@ const signUp = async (req, res) => {
     res.status(500).json({ error: "Something went wrong" });
   }
 };
-export default signUp;
 
 export const login = async (req, res) => {
   const { email, password } = req.body;
@@ -55,8 +54,6 @@ export const login = async (req, res) => {
     res.status(500).json({ error: "Something went wrong" });
   }
 };
-
-
 
 export const googleLogin = async (req, res) => {
   try {
@@ -89,14 +86,76 @@ export const googleLogin = async (req, res) => {
   }
 };
 
+export const githubLogin = async (req, res) => {
+  try {
+  } catch (error) {}
+};
 
+export const forgetPssword = async (req, res) => {
+  try {
+    const { email } = req.body;
 
-export const githubLogin = async (req, res) =>{
-  try{
-    
-      
+    if (!email) {
+      return res.status(400).send({ error: "Email is required" });
+    }
 
-  } catch(error){
+    const checkUser = await User.findOne({ email });
+    if (!checkUser) {
+      return res.status(400).send({ error: "User does not exist" });
+    }
 
+    const token = jwt.sign({ email }, process.env.JWT_KEY, {
+      expiresIn: "1h",
+    });
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      secure: true,
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: email,
+      subject: "Password Reset",
+      text: `Click on the link to generate your new password: http://localhost:3000/user/reset-password${token}`,
+    };
+    await transporter.sendMail(mailOptions);
+    return res
+      .status(200)
+      .send({ message: "Password reset link sent to your email" });
+  } catch (error) {
+    return res.status(500).send({ error: "Something went wrong" });
   }
-}
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { token} = req.params;
+    const { password } = req.body;
+    if ( !password) {
+      return res.status(400 ).send({ error: "password is required" });
+    }
+    const decoded = jwt.verify(token, process.env.JWT_KEY);
+    const user = await User.findOne({email: decoded.email });
+    const newhashPassword = await hashPassword(password);
+
+    user.password = newhashPassword;
+    await user.save();
+    return res.status(200).send({ message: "Password reset successfully" });
+  } catch (error) {
+    return res.status(500).send({ error: "Something went wrong" });
+  }
+};
+
+export const logout = async (req, res) => {
+  try {
+    res.clearCookie("jwt");
+    res.status(200).json({ message: "user Logged out successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Something went wrong" });
+  }
+};
