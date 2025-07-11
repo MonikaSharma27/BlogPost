@@ -1,4 +1,4 @@
-import signUp, { forgetPssword, googleLogin, login, logout, resetPassword } from "../Controller/user.controller.js";
+import {signUp, forgetPssword, googleLogin, login, logout, resetPassword } from "../Controller/user.controller.js";
 import express from "express";
 
 
