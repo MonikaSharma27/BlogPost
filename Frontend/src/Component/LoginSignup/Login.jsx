@@ -34,6 +34,21 @@ const Login = () => {
       }
     }
   };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const response = await axiosInstance.get("/user/google");
+       toast.success("Redirecting to Google login...");
+      window.location.href = response.data.url;
+    } catch (error) {
+      console.error("Error during Google login:", error);
+      toast.error("Google login failed. Please try again.");
+    }
+  }
+
+
+
+
   return (
     <div className=" w-full flex justify-center items-center">
       <div className="w-2/3 hidden md:block ">
@@ -95,7 +110,7 @@ const Login = () => {
             </Button>
           </form>
           <div>
-            <Button variant="outline" className="w-full mt-3 ">
+            <Button variant="outline" className="w-full mt-3 " onClick={handleGoogleLogin}>
               <img
                 src={logo}
                 alt="Google Logo"
