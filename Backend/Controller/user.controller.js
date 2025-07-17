@@ -98,12 +98,10 @@ export const forgetPssword = async (req, res) => {
     if (!email) {
       return res.status(400).send({ error: "Email is required" });
     }
-
     const checkUser = await User.findOne({ email });
     if (!checkUser) {
       return res.status(400).send({ error: "User does not exist" });
     }
-
     const token = jwt.sign({ email }, process.env.JWT_KEY, {
       expiresIn: "1h",
     });
@@ -115,33 +113,32 @@ export const forgetPssword = async (req, res) => {
         pass: process.env.PASSWORD,
       },
     });
-
     const mailOptions = {
       from: process.env.EMAIL,
       to: email,
       subject: "Password Reset",
-      text: `Click on the link to generate your new password: http://localhost:3000/user/reset-password${token}`,
+      text: `Click on the link to generate your new password: http://localhost:5173/user/reset-password/?token=${token}`,
     };
     await transporter.sendMail(mailOptions);
     return res
       .status(200)
       .send({ message: "Password reset link sent to your email" });
   } catch (error) {
-    return res.status(500).send({ error: "Something went wrong" });
+    return res.status(500).send({ error: error.message });
   }
 };
 
 export const resetPassword = async (req, res) => {
+  console.log("Reset Password Function Called");
   try {
-    const { token} = req.params;
+    const { token } = req.query;
     const { password } = req.body;
     if ( !password) {
       return res.status(400 ).send({ error: "password is required" });
     }
     const decoded = jwt.verify(token, process.env.JWT_KEY);
-    const user = await User.findOne({email: decoded.email });
-    const newhashPassword = await hashPassword(password);
-
+    const user = await User.findOne({ email: decoded.email });
+    const newhashPassword = await bcrypt.hash(password, 10);
     user.password = newhashPassword;
     await user.save();
     return res.status(200).send({ message: "Password reset successfully" });
