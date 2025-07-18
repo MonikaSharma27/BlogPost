@@ -4,6 +4,7 @@ import mongoose from 'mongoose'
 import userRoutes from './Routes/user.routes.js'
 import cors from 'cors'
 
+
 const app = express()
 const port = 3000
 

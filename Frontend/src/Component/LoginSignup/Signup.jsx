@@ -36,6 +36,16 @@ const Signup = () => {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    try {
+      const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${import.meta.env.VITE_GOOGLE_CLIENT_ID}&redirect_uri=http://localhost:3000/user/google&response_type=code&scope=email profile`;
+       toast.success("Redirecting to Google login...");
+      window.location.href = googleAuthUrl;
+    } catch (error) {
+      toast.error("Google login failed. Please try again.");
+    }
+  }
+
   return (
     <div className=" w-full flex justify-center items-center">
       <div className="w-2/3 hidden md:block">
@@ -103,7 +113,7 @@ const Signup = () => {
             </Button>
           </form>
           <div>
-            <Button variant="outline" className="w-full mt-3 ">
+            <Button variant="outline" className="w-full mt-3" onClick={handleGoogleLogin}>
               <img
                 src={logo}
                 alt="Google Logo"

@@ -17,10 +17,10 @@ const Login = () => {
     const password = e.target.password.value;
     const userData = { email, password };
     console.log("User Data:", userData);
-    registerUser(userData);
+    loginUser(userData);
   };
 
-  const registerUser = async (userData) => {
+  const loginUser = async (userData) => {
     try {
       const response = await axiosInstance.post("/user/login", userData);
       console.log("User Login successfully:", response.data);
@@ -36,14 +36,16 @@ const Login = () => {
   };
 
   const handleGoogleLogin = async () => {
-    try {
-      const response = await axiosInstance.get("/user/google");
-       toast.success("Redirecting to Google login...");
-      window.location.href = response.data.url;
-    } catch (error) {
-      console.error("Error during Google login:", error);
-      toast.error("Google login failed. Please try again.");
-    }
+    // try {
+    //   const response = await axiosInstance.get("/user/google");
+    //    toast.success("Redirecting to Google login...");
+    //   window.location.href = response.data.url;
+    // } catch (error) {
+    //   console.error("Error during Google login:", error);
+    //   toast.error("Google login failed. Please try again.");
+    // }
+     const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${import.meta.env.VITE_GOOGLE_CLIENT_ID}&redirect_uri=http://localhost:3000/user/google&response_type=code&scope=email profile`;
+    window.location.href = googleAuthUrl;
   }
 
 
